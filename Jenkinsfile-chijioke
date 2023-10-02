@@ -46,7 +46,7 @@ pipeline {
                  withAWS (credentials: 'aws', region: 'us-east-1') {
                  sh """
                     aws eks update-kubeconfig --name chijioke-cluster --region us-east-1 
-                     kubectl apply -f eks-deploy-k8s.yaml"
+                     kubectl apply -f eks-deploy-k8s.yaml
                     """
                  }
              }
