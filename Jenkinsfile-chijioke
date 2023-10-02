@@ -1,9 +1,7 @@
 pipeline {
-    agent {
-        docker {
-            image 'midebell/dev-tools:v2'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
+    agent any
+    tools {
+      maven 'maven'
     }
 
     environment {
@@ -29,16 +27,17 @@ pipeline {
         stage ("Build image") {
             steps {
                 script {
-                    dockerImage = docker.build registry
+                     docker.build registry
                 }
             }
         }
         stage('Deploy image') {
             steps{
-                script{
-                    docker.withRegistry("https://" + registry, "ecr:us-east-1:" + registryCredential) {
-                        dockerImage.push()
-                    }
+                withAWS (credentials: 'aws', region: 'us-east-1') {
+                    sh """ 
+                        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 411317891806.dkr.ecr.us-east-1.amazonaws.com
+                        docker push 411317891806.dkr.ecr.us-east-1.amazonaws.com/chijiokerepo:latest
+                    """
                 }
             }
         }
